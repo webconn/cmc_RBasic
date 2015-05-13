@@ -16,25 +16,37 @@ Variable::Variable(Value &val, const Value &index):
         origin(&val),
         type(val.getType())
 {
-        // Get existing elements
-        unsigned int val_size = val.size();
-        unsigned int in_size = index.size();
+        if (index.getType() == VAR_LOGICAL) {
+                // Get existing elements
+                unsigned int val_size = val.size();
+                unsigned int in_size = index.size();
 
-        unsigned int m = std::min(val_size, in_size);
+                unsigned int m = std::min(val_size, in_size);
 
-        for (unsigned int i = 0; i < m; i++) {
-                if (index[i % in_size]) {
-                        lvalues.push_back(&val[i]);
-                }
-        }
-
-        // Append new NULLs
-        if (in_size > val_size) {
-                for (unsigned int i = val_size; i < in_size; i++) {
-                        val.push_back(Elem());
-                        if (index[i]) {
+                for (unsigned int i = 0; i < m; i++) {
+                        if (index[i % in_size]) {
                                 lvalues.push_back(&val[i]);
                         }
+                }
+
+                // Append new NULLs
+                if (in_size > val_size) {
+                        for (unsigned int i = val_size; i < in_size; i++) {
+                                val.push_back(Elem());
+                                if (index[i]) {
+                                        lvalues.push_back(&val[i]);
+                                }
+                        }
+                }
+        } else if (index.getType() == VAR_NUMBER) { // need to get index table
+                for (unsigned int i = 0; i < index.size(); i++) {
+                        // resize values table if required
+                        if (static_cast<double>(index[i]) > val.size()) {
+                                val.expand(static_cast<double>(index[i]));
+                        }
+
+                        // numbers starting from 1
+                        lvalues.push_back(&val[static_cast<double>(index[i]) - 1]);
                 }
         }
 }
@@ -58,6 +70,12 @@ Value& Variable::operator=(const Value &val)
                         origin->push_back(val[i]);
                         lvalues.push_back(&((*origin)[i]));
                 }
+        }
+
+        // Remove unnecessary elems
+        else if (val_size < lv_size) {
+                origin->trim(val_size);
+                lvalues.resize(val_size);
         }
 
         return *origin;

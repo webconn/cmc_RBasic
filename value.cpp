@@ -66,9 +66,17 @@ const RBasic::Elem& RBasic::Value::operator[](unsigned int index) const
                 return elems[index];
 }
 
+
 void RBasic::Value::expand(unsigned int new_size)
 {
         if (elems.size() <= new_size) {
+                elems.resize(new_size);
+        }
+}
+
+void RBasic::Value::trim(unsigned int new_size)
+{
+        if (elems.size() >= new_size) {
                 elems.resize(new_size);
         }
 }

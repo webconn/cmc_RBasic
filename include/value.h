@@ -30,6 +30,7 @@ namespace RBasic {
                 Value operator[](const Value &index) const;
 
                 void expand(unsigned int new_size);
+                void trim(unsigned int new_size);
 
                 var_type getType() const { return type; }
                 std::string getTypeName() const;
