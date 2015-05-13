@@ -36,8 +36,9 @@ enum token_type {
         TOKEN_L,
         TOKEN_GE,
         TOKEN_LE,
-        TOKEN_EQ,
-        TOKEN_NOT_EQ,
+        TOKEN_EQ, // ==
+        TOKEN_NOT_EQ, // !=
+        TOKEN_SEQ, // =
 
         TOKEN_PLUS,
         TOKEN_MINUS,
@@ -59,15 +60,22 @@ public:
         double dbl;
         std::string str;
 
+        Token(): type(TOKEN_END) {}
         Token(token_type _type): type(_type) {}
         Token(const std::string &_str): type(TOKEN_STRING), str(_str) {}
         Token(const std::string &_str, bool id): type(TOKEN_ID), str(_str) {}
         Token(double _dbl): type(TOKEN_NUMBER), dbl(_dbl) {}
+
+        bool operator==(const Token &t) const;
+
+        unsigned int weight() const;
+        bool isOperator() const { return weight() > 0; };
 };
 
 typedef std::list<Token> token_list;
+typedef std::list<Token>::iterator token_iterator;
 
 std::ostream& operator<<(std::ostream &in, Token &t);
-token_list *lex_parse(std::istream &input);
+token_list *lex_parse(std::istream &input, const Token &until = Token());
 
 #endif

@@ -1,0 +1,101 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+BOOL	include/rbasic.h	/^                        BOOL,$/;"	e	enum:RBasic::Elem::__anon1
+CXX	Makefile	/^CXX = g++$/;"	m
+CXX_FLAGS	Makefile	/^CXX_FLAGS = -g -Wall$/;"	m
+Elem	include/rbasic.h	/^                Elem(): type(NUL) {}$/;"	f	struct:RBasic::Elem
+Elem	include/rbasic.h	/^                Elem(const char* _str): type(STRING), str(_str) {}$/;"	f	struct:RBasic::Elem
+Elem	include/rbasic.h	/^                Elem(const std::string &_str): type(STRING), str(_str) {}$/;"	f	struct:RBasic::Elem
+Elem	include/rbasic.h	/^                Elem(double _num): type(NUMBER), num(_num) {}$/;"	f	struct:RBasic::Elem
+Elem	include/rbasic.h	/^        struct Elem {$/;"	s	namespace:RBasic
+Exp1	syntax.cpp	/^RBasic::Value Grammar::Exp1(token_iterator &t)$/;"	f	class:Grammar
+Expression	syntax.cpp	/^RBasic::Value Grammar::Expression(token_iterator& t)$/;"	f	class:Grammar
+Grammar	include/syntax.h	/^namespace Grammar {$/;"	n
+INCLUDE_LEX_H	include/lex.h	2;"	d
+INCLUDE_RBASIC_H	include/rbasic.h	2;"	d
+INCLUDE_SYNTAX_H	include/syntax.h	2;"	d
+LD_FLAGS	Makefile	/^LD_FLAGS = -lm$/;"	m
+NUL	include/rbasic.h	/^                        NUL,$/;"	e	enum:RBasic::Elem::__anon1
+NUMBER	include/rbasic.h	/^                        NUMBER,$/;"	e	enum:RBasic::Elem::__anon1
+NoVariableException	include/rbasic.h	/^        class NoVariableException {};$/;"	c	namespace:RBasic
+OBJS	Makefile	/^OBJS = main.o lex.o syntax.o rbasic.o$/;"	m
+OutOfRangeException	include/rbasic.h	/^        class OutOfRangeException {};$/;"	c	namespace:RBasic
+Program	syntax.cpp	/^bool Grammar::Program(token_iterator &t)$/;"	f	class:Grammar
+RBasic	include/rbasic.h	/^namespace RBasic {$/;"	n
+STRING	include/rbasic.h	/^                        STRING,$/;"	e	enum:RBasic::Elem::__anon1
+TARGET	Makefile	/^TARGET=rbasic$/;"	m
+TOKEN_AND	include/lex.h	/^        TOKEN_AND,$/;"	e	enum:token_type
+TOKEN_ASSIGN	include/lex.h	/^        TOKEN_ASSIGN,$/;"	e	enum:token_type
+TOKEN_CLBLK	include/lex.h	/^        TOKEN_CLBLK, \/\/ }$/;"	e	enum:token_type
+TOKEN_CLBR	include/lex.h	/^        TOKEN_CLBR, \/\/ )$/;"	e	enum:token_type
+TOKEN_CLIND	include/lex.h	/^        TOKEN_CLIND, \/\/ ]$/;"	e	enum:token_type
+TOKEN_COMMA	include/lex.h	/^        TOKEN_COMMA,$/;"	e	enum:token_type
+TOKEN_DIV	include/lex.h	/^        TOKEN_DIV,$/;"	e	enum:token_type
+TOKEN_END	include/lex.h	/^        TOKEN_END,$/;"	e	enum:token_type
+TOKEN_EQ	include/lex.h	/^        TOKEN_EQ,$/;"	e	enum:token_type
+TOKEN_ERROR	include/lex.h	/^        TOKEN_ERROR,$/;"	e	enum:token_type
+TOKEN_FALSE	include/lex.h	/^        TOKEN_FALSE,$/;"	e	enum:token_type
+TOKEN_G	include/lex.h	/^        TOKEN_G,$/;"	e	enum:token_type
+TOKEN_GE	include/lex.h	/^        TOKEN_GE,$/;"	e	enum:token_type
+TOKEN_ID	include/lex.h	/^        TOKEN_ID,$/;"	e	enum:token_type
+TOKEN_L	include/lex.h	/^        TOKEN_L,$/;"	e	enum:token_type
+TOKEN_LE	include/lex.h	/^        TOKEN_LE,$/;"	e	enum:token_type
+TOKEN_MINUS	include/lex.h	/^        TOKEN_MINUS,$/;"	e	enum:token_type
+TOKEN_MUL	include/lex.h	/^        TOKEN_MUL,$/;"	e	enum:token_type
+TOKEN_NOT	include/lex.h	/^        TOKEN_NOT,$/;"	e	enum:token_type
+TOKEN_NOT_EQ	include/lex.h	/^        TOKEN_NOT_EQ,$/;"	e	enum:token_type
+TOKEN_NULL	include/lex.h	/^        TOKEN_NULL,$/;"	e	enum:token_type
+TOKEN_NUMBER	include/lex.h	/^        TOKEN_NUMBER,$/;"	e	enum:token_type
+TOKEN_OPBLK	include/lex.h	/^        TOKEN_OPBLK, \/\/ {$/;"	e	enum:token_type
+TOKEN_OPBR	include/lex.h	/^        TOKEN_OPBR, \/\/ ($/;"	e	enum:token_type
+TOKEN_OPIND	include/lex.h	/^        TOKEN_OPIND, \/\/ [$/;"	e	enum:token_type
+TOKEN_OR	include/lex.h	/^        TOKEN_OR,$/;"	e	enum:token_type
+TOKEN_PLUS	include/lex.h	/^        TOKEN_PLUS,$/;"	e	enum:token_type
+TOKEN_RANGE	include/lex.h	/^        TOKEN_RANGE,$/;"	e	enum:token_type
+TOKEN_STRING	include/lex.h	/^        TOKEN_STRING,$/;"	e	enum:token_type
+TOKEN_TRUE	include/lex.h	/^        TOKEN_TRUE,$/;"	e	enum:token_type
+Token	include/lex.h	/^        Token(const std::string &_str): type(TOKEN_STRING), str(_str) {}$/;"	f	class:Token
+Token	include/lex.h	/^        Token(const std::string &_str, bool id): type(TOKEN_ID), str(_str) {}$/;"	f	class:Token
+Token	include/lex.h	/^        Token(double _dbl): type(TOKEN_NUMBER), dbl(_dbl) {}$/;"	f	class:Token
+Token	include/lex.h	/^        Token(token_type _type): type(_type) {}$/;"	f	class:Token
+Token	include/lex.h	/^class Token {$/;"	c
+Value	include/rbasic.h	/^                Value() {}$/;"	f	class:RBasic::Value
+Value	include/rbasic.h	/^                Value(const Elem &el) { elems.push_back(el); }$/;"	f	class:RBasic::Value
+Value	include/rbasic.h	/^        class Value {$/;"	c	namespace:RBasic
+Value	rbasic.cpp	/^RBasic::Value::Value(const RBasic::Variable &var)$/;"	f	class:RBasic::Value
+Variable	include/rbasic.h	/^        typedef std::map<std::string, Value>::iterator Variable;$/;"	t	namespace:RBasic
+Variable	syntax.cpp	/^RBasic::Variable Grammar::Variable(token_iterator& lst)$/;"	f	class:Grammar
+bl	include/rbasic.h	/^                bool bl;$/;"	m	struct:RBasic::Elem
+dbl	include/lex.h	/^        double dbl;$/;"	m	class:Token
+elems	include/rbasic.h	/^                std::vector<Elem> elems;$/;"	m	class:RBasic::Value
+getValue	rbasic.cpp	/^RBasic::Value RBasic::getValue(const RBasic::Variable &var)$/;"	f	class:RBasic
+getValue	rbasic.cpp	/^RBasic::Value RBasic::getValue(const std::string &name)$/;"	f	class:RBasic
+getVariable	rbasic.cpp	/^RBasic::Variable RBasic::getVariable(const std::string &name)$/;"	f	class:RBasic
+get_token	lex.cpp	/^static Token *get_token(std::istream &in)$/;"	f	file:
+lex_parse	lex.cpp	/^token_list *lex_parse(std::istream &input)$/;"	f
+main	main.cpp	/^int main()$/;"	f
+num	include/rbasic.h	/^                double num;$/;"	m	struct:RBasic::Elem
+operator <<	lex.cpp	/^std::ostream& operator<<(std::ostream &in, Token &t)$/;"	f
+operator <<	rbasic.cpp	/^std::ostream& operator<<(std::ostream &out, RBasic::Elem &val)$/;"	f
+operator <<	rbasic.cpp	/^std::ostream& operator<<(std::ostream &out, RBasic::Value &val)$/;"	f
+operator []	rbasic.cpp	/^RBasic::Elem& RBasic::Value::operator[](unsigned int index)$/;"	f	class:RBasic::Value
+operator []	rbasic.cpp	/^const RBasic::Elem& RBasic::Value::operator[](unsigned int index) const$/;"	f	class:RBasic::Value
+set	include/rbasic.h	/^                void set(const std::string &_str) { type = STRING; str = _str; }$/;"	f	struct:RBasic::Elem
+set	include/rbasic.h	/^                void set(double _num) { type = NUMBER; num = _num; }$/;"	f	struct:RBasic::Elem
+setBool	include/rbasic.h	/^                void setBool(bool _bl) { type = BOOL; bl = _bl; }$/;"	f	struct:RBasic::Elem
+setVariable	rbasic.cpp	/^void RBasic::setVariable(const RBasic::Variable &var, const RBasic::Value &value)$/;"	f	class:RBasic
+setVariable	rbasic.cpp	/^void RBasic::setVariable(const std::string &name, const RBasic::Value &value)$/;"	f	class:RBasic
+size	include/rbasic.h	/^                unsigned int size() { return elems.size(); }$/;"	f	class:RBasic::Value
+str	include/lex.h	/^        std::string str;$/;"	m	class:Token
+str	include/rbasic.h	/^                std::string str;$/;"	m	struct:RBasic::Elem
+syntax_parse	syntax.cpp	/^bool syntax_parse(std::istream &in)$/;"	f
+token_iterator	include/lex.h	/^typedef std::list<Token>::iterator token_iterator;$/;"	t
+token_list	include/lex.h	/^typedef std::list<Token> token_list;$/;"	t
+token_type	include/lex.h	/^enum token_type {$/;"	g
+type	include/lex.h	/^        token_type type;$/;"	m	class:Token
+type	include/rbasic.h	/^                } type;$/;"	m	struct:RBasic::Elem	typeref:enum:RBasic::Elem::__anon1
+vars	rbasic.cpp	/^static std::map<std::string, RBasic::Value> vars;$/;"	v	file:

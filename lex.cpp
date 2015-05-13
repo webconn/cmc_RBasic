@@ -2,15 +2,15 @@
 #include <cstring>
 #include <cctype>
 
-static Token *get_token(std::istream &in);
+static Token *get_token(std::istream &in, const Token &until = Token());
 
-token_list *lex_parse(std::istream &input)
+token_list *lex_parse(std::istream &input, const Token &until)
 {
         std::list<Token> *lst = new std::list<Token>;
         
         Token *t;
 
-        while ((t = get_token(input)) != NULL) {
+        while ((t = get_token(input, until)) != NULL) {
                 lst->push_back(*t);
                 delete t;
         }
@@ -18,9 +18,10 @@ token_list *lex_parse(std::istream &input)
         return lst;
 }
 
-static Token *get_token(std::istream &in)
+static Token *get_token(std::istream &in, const Token &until)
 {
         token_type t;
+        Token *ret = NULL;
 
         static bool end = false;
 
@@ -32,10 +33,10 @@ static Token *get_token(std::istream &in)
         char s = in.get();
 
         // Skip spaces
-        while (isblank(s)) s = in.get();
+        while (!in.eof() && isblank(s)) s = in.get();
 
         // Symbols
-        if (s == ';' || s == '\n' || s == '\0' || s == '#') {
+        if (in.eof() || s == ';' || s == '\n' || s == '\0' || s == '#') {
                 t = TOKEN_END;
         } else if (s == ',') {
                 t = TOKEN_COMMA;
@@ -43,6 +44,14 @@ static Token *get_token(std::istream &in)
                 t = TOKEN_OPBR;
         } else if (s == ')') {
                 t = TOKEN_CLBR;
+        } else if (s == '[') {
+                t = TOKEN_OPIND;
+        } else if (s == ']') {
+                t = TOKEN_CLIND;
+        } else if (s == '{') {
+                t = TOKEN_OPBLK;
+        } else if (s == '}') {
+                t = TOKEN_CLBLK;
         } else if (s == '&') {
                 t = TOKEN_AND;
         } else if (s == '|') {
@@ -114,14 +123,14 @@ static Token *get_token(std::istream &in)
                         s = in.get();
                 }
 
-                return new Token(buf); // string
+                ret = new Token(buf); // string
         } else if (isdigit(s)) { // number
                 in.unget();
                 
                 double buf;
                 in >> buf;
 
-                return new Token(buf);
+                ret = new Token(buf);
         } else if (isalpha(s)) { // identifier or word
                 std::string buf;
                 
@@ -138,17 +147,74 @@ static Token *get_token(std::istream &in)
                 } else if (buf == "FALSE") {
                         t = TOKEN_FALSE;
                 } else {
-                        return new Token(buf, true); // identifier
+                        ret = new Token(buf, true); // identifier
                 }
         } else {
                 t = TOKEN_ERROR;
         }
         
-        if (t == TOKEN_END) {
+        if (ret == NULL) {
+                ret = new Token(t);
+        }
+
+        if (until == *ret) {
                 end = true;
         }
 
-        return new Token(t);
+        return ret;
+}
+
+/**
+ * @brief Get weight of the operator
+ * Less number - less weight - less priority
+ * More number - more weight - higher priority
+ * 
+ * @return unsigned int Weight
+ */
+unsigned int Token::weight() const
+{
+        switch (type) {
+                case TOKEN_AND:
+                case TOKEN_OR:
+                        return 1;
+                case TOKEN_NOT:
+                        return 2;
+                case TOKEN_L:
+                case TOKEN_LE:
+                case TOKEN_G:
+                case TOKEN_GE:
+                case TOKEN_EQ:
+                case TOKEN_NOT_EQ:
+                        return 3;
+                case TOKEN_PLUS:
+                case TOKEN_MINUS:
+                        return 4;
+                case TOKEN_MUL:
+                case TOKEN_DIV:
+                        return 5;
+                case TOKEN_RANGE:
+                        return 6;
+                case TOKEN_OPBR:
+                case TOKEN_CLBR:
+                        return 7;
+                default:
+                        return 0;
+        }
+}
+
+bool Token::operator==(const Token &t) const
+{
+        if (t.type != type) {
+                return false;
+        } else {
+                if (type == TOKEN_NUMBER && t.dbl != dbl) {
+                        return false;
+                } else if ((type == TOKEN_STRING || type == TOKEN_ID) && t.str != str) {
+                        return false;
+                } 
+                
+                return true;
+        }
 }
 
 std::ostream& operator<<(std::ostream &in, Token &t)

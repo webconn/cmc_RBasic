@@ -1,6 +1,6 @@
 TARGET=rbasic
 
-OBJS = main.o lex.o syntax.o
+OBJS = main.o lex.o syntax.o rbasic.o variable.o value.o elem.o
 
 CXX = g++
 CXX_FLAGS = -g -Wall
