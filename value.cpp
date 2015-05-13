@@ -1,12 +1,9 @@
 #include "include/rbasic.h"
 
-RBasic::Value::Value(const RBasic::Variable &var)
-{
-        *this = var.getValue();
-}
-
 /**
  * @brief Generate value as range
+ * @param start Start of range
+ * @param end End of range
  */
 RBasic::Value::Value(double start, double end):
         type(VAR_NUMBER)
@@ -69,3 +66,24 @@ const RBasic::Elem& RBasic::Value::operator[](unsigned int index) const
                 return elems[index];
 }
 
+void RBasic::Value::expand(unsigned int new_size)
+{
+        if (elems.size() <= new_size) {
+                elems.resize(new_size);
+        }
+}
+
+RBasic::Value& RBasic::Value::operator+(const RBasic::Value &val)
+{
+        // expand size if necessary
+        expand(val.size());
+
+        unsigned int vsize = val.size();
+
+        // sum each element with cycling
+        for (unsigned int i = 0; i < size(); i++) {
+                elems[i] += val[i % vsize];
+        }
+
+        return *this;
+}
