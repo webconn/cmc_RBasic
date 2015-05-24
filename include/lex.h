@@ -123,6 +123,8 @@ public:
         
         virtual void printStart() {}
         virtual void printMore() {}
+
+        virtual ~token_iterator() {}
 };
 
 /**
@@ -133,13 +135,14 @@ class stream_token_iterator: public token_iterator
         std::istream &in;
         Token getToken();
         Token getTokenRaw();
+        bool std_in;
 
 public:
-        stream_token_iterator(std::istream &st, const Token &end = Token(TOKEN_EOF)): 
-                token_iterator(end), in(st) {}
+        stream_token_iterator(std::istream &st, bool std, const Token &end = Token(TOKEN_EOF)): 
+                token_iterator(end), in(st), std_in(std) {}
         
-        void printStart() { if (in == std::cin) { std::cout << "> "; }}
-        void printMore() { if (in == std::cin) { std::cout << "+ "; }}
+        void printStart() { if (std_in) { std::cout << "> "; }}
+        void printMore() { if (std_in) { std::cout << "+ "; }}
 };
 
 /**

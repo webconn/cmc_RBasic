@@ -1,4 +1,6 @@
 #include <iostream>
+#include <fstream>
+#include <cstdio>
 #include <list>
 
 #include "include/lex.h"
@@ -9,9 +11,17 @@
 
 using namespace std;
 
-int main()
+int main(int argc, char *argv[])
 {
-        stream_token_iterator it(cin, Token(TOKEN_EOF));
+        if (argc == 2) {
+                if (!freopen(argv[1], "r", stdin)) {
+                        cerr << "Error opening file " << argv[1] << '\n';
+                        perror("");
+                        return 1;
+                }
+        }
+        
+        stream_token_iterator it(cin, argc != 2, Token(TOKEN_EOF));
 
         RBasic::addFunction("c", BuiltIns::c);
         RBasic::addFunction("mode", BuiltIns::mode);

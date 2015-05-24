@@ -21,21 +21,20 @@ Variable::Variable(Value &val, const Value &index):
                 unsigned int val_size = val.size();
                 unsigned int in_size = index.size();
 
-                for (unsigned int i = 0; i < val_size; i++) {
-                        if (index[i % in_size]) {
-                                lvalues.push_back(&val[i]);
-                        }
-                }
-
                 // Append new NULLs
                 if (in_size > val_size) {
                         for (unsigned int i = val_size; i < in_size; i++) {
                                 val.push_back(Elem());
-                                if (index[i]) {
-                                        lvalues.push_back(&val[i]);
-                                }
                         }
                 }
+
+                // Create lvalues table
+                for (unsigned int i = 0; i < std::max(in_size, val_size); i++) {
+                        if (index[i % in_size]) {
+                                lvalues.push_back(&val[i % in_size]);
+                        }
+                }
+
         } else if (index.getType() == VAR_NUMBER) { // need to get index table
 
                 unsigned int in_size = index.size();

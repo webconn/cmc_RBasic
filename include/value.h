@@ -37,7 +37,10 @@ namespace RBasic {
                 std::string getTypeName() const;
 
                 // TODO: convert types
-                void push_back(const Elem &el) { elems.push_back(el); }
+                void push_back(const Elem &el) { 
+                        if (type == VAR_NULL) type = el.type; 
+                        elems.push_back(el); 
+                }
 
                 Value& operator+(const Value &val);
                 Value& operator-(const Value &val);
