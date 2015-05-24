@@ -21,6 +21,7 @@ namespace Grammar {
 
         class NotAVariableException {};
         class IsFunctionCallException: public NotAVariableException {};
+        class NotAFunctionCallException {};
         class NoOperandException {
         public:
                 NoOperandException(const Token &t) {}
@@ -29,6 +30,6 @@ namespace Grammar {
 
 };
 
-bool syntax_parse(std::istream &in);
+bool syntax_parse(token_iterator &in);
 
 #endif

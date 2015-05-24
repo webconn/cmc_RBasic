@@ -11,18 +11,10 @@ static Token until = Token();
  * @param std::stream in Input bytestream
  * @return bool True if stream parsed successfully, or false otherwise
  */
-bool syntax_parse(std::istream &in)
+bool syntax_parse(token_iterator &t)
 {
-        while (!in.eof()) {
-                token_list *tokens = lex_parse(in, until);
-
-                // invoke grammar parser
-                token_iterator t = tokens->begin();
-                Grammar::Program(t);
-
-                // remove tokens list before exiting
-                delete tokens;
-        }
+        // invoke grammar parser
+        Grammar::Program(t);
 
         return true;
 }
@@ -34,14 +26,13 @@ bool syntax_parse(std::istream &in)
  */
 bool Grammar::Program(token_iterator &t)
 {
-        Token elem = *t;
-
-        if (elem.type == TOKEN_END) { // reached end of program
-                return true;
-        } else { // otherwise it should be expression
+        while (!t.eof()) {
                 Grammar::Expression(t);
-                return true;
+                
+                if (t->type == TOKEN_END || t->type == TOKEN_ENDS)
+                        t++;
         }
+        return true;
 }
 
 /**
@@ -59,26 +50,26 @@ RBasic::Value Grammar::Expression(token_iterator& t, const Token &until)
         context = false;
 
         // create list of assignment variables
-        token_iterator in = t;
         std::list<RBasic::Variable> vars;
 
         do {
                 // we need to have variable first and then assignment statement
                 RBasic::Variable var;
                 try {
-                        var = Grammar::Variable(in);
+                        var = Grammar::Variable(t);
                 } catch (...) { // it is not a variable...
                         break;
                 }
 
-                if (in->type == TOKEN_ASSIGN) {
+                if (t->type == TOKEN_ASSIGN) {
                         vars.push_back(var);
                 } else {
+                        t--;
                         break;
                 }
 
                 // shift to next token
-                t = ++in;
+                t++;
         } while (1);
 
         // here we have a list of variables to assign
@@ -247,8 +238,20 @@ bool Grammar::Calculate(std::list<Token> &op_stack, std::list<RBasic::Value> &va
         return true;
 }
 
-RBasic::Value Grammar::FunctionCall(token_iterator &t)
+RBasic::Value Grammar::FunctionCall(token_iterator &lst)
 {
+        // if current token is not and ID - not a function call
+        if (lst->type != TOKEN_ID) {
+                throw NotAFunctionCallException();
+        }
+
+        lst++;
+
+        // not an opening bracket - not a function call
+        if (lst->type != TOKEN_OPBR) {
+
+        }
+
 
         return RBasic::Value();
 }

@@ -8,5 +8,7 @@ using namespace std;
 
 int main()
 {
-        syntax_parse(cin);
+        stream_token_iterator it(cin, Token(TOKEN_EOF));
+
+        syntax_parse(it);
 }

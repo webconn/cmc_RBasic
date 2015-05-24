@@ -21,9 +21,7 @@ Variable::Variable(Value &val, const Value &index):
                 unsigned int val_size = val.size();
                 unsigned int in_size = index.size();
 
-                unsigned int m = std::min(val_size, in_size);
-
-                for (unsigned int i = 0; i < m; i++) {
+                for (unsigned int i = 0; i < val_size; i++) {
                         if (index[i % in_size]) {
                                 lvalues.push_back(&val[i]);
                         }
@@ -39,14 +37,17 @@ Variable::Variable(Value &val, const Value &index):
                         }
                 }
         } else if (index.getType() == VAR_NUMBER) { // need to get index table
+
+                unsigned int in_size = index.size();
+
                 for (unsigned int i = 0; i < index.size(); i++) {
                         // resize values table if required
-                        if (static_cast<double>(index[i]) > val.size()) {
+                        if (static_cast<double>(index[i % in_size]) > val.size()) {
                                 val.expand(static_cast<double>(index[i]));
                         }
 
                         // numbers starting from 1
-                        lvalues.push_back(&val[static_cast<double>(index[i]) - 1]);
+                        lvalues.push_back(&val[static_cast<double>(index[i % in_size]) - 1]);
                 }
         }
 }
@@ -61,13 +62,13 @@ Value& Variable::operator=(const Value &val)
 
         unsigned int m = std::min(lv_size, val_size);
         for (unsigned int i = 0; i < m; i++) {
-                *(lvalues[i]) = val[i];
+                *(lvalues[i]) = val[i % val_size];
         }
 
         // Append new elements
         if (val_size > lv_size) {
                 for (unsigned int i = lv_size; i < val_size; i++) {
-                        origin->push_back(val[i]);
+                        origin->push_back(val[i % val_size]);
                         lvalues.push_back(&((*origin)[i]));
                 }
         }

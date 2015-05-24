@@ -84,11 +84,23 @@ RBasic::Value RBasic::Operation(const Token &op, const RBasic::Value &_e1, const
         } else if (op.type == TOKEN_PLUS) { // sum two values
                 return e1 + e2;               
         } else if (op.type == TOKEN_MINUS) { // sub two values
-                //return e1 - e2;
+                return e1 - e2;
         } else if (op.type == TOKEN_MUL) { // multiply
-                //return e1 * e2;
+                return e1 * e2;
         } else if (op.type == TOKEN_DIV) { // divide
-                //return e1 / e2;
+                return e1 / e2;
+        } else if (op.type == TOKEN_L) { // less
+                return e1 < e2;
+        } else if (op.type == TOKEN_G) { // greater
+                return e1 > e2;
+        } else if (op.type == TOKEN_LE) { // less or equal
+                return e1 <= e2;
+        } else if (op.type == TOKEN_GE) { // greater or equal
+                return e1 >= e2;
+        } else if (op.type == TOKEN_EQ) { // equal
+                return e1 == e2;
+        } else if (op.type == TOKEN_NOT_EQ) { // not equal
+                return e1 != e2;
         }
 
         return RBasic::Value();

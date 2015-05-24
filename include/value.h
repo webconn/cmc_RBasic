@@ -21,6 +21,7 @@ namespace RBasic {
         public:
 
                 Value() : type(VAR_NULL) {}
+                Value(var_type t) : type(t) {}
                 Value(const Elem &el) : type(el.type) { elems.push_back(el); }
                 Value(double start, double end); // generate range
 
@@ -41,6 +42,14 @@ namespace RBasic {
                 Value& operator-(const Value &val);
                 Value& operator*(const Value &val);
                 Value& operator/(const Value &val);
+
+                // TODO: make it const by creating copies
+                Value operator>(const Value &val);
+                Value operator<(const Value &val);
+                Value operator>=(const Value &val);
+                Value operator<=(const Value &val);
+                Value operator==(const Value &val);
+                Value operator!=(const Value &val);
 
         };
 };

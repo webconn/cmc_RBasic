@@ -48,9 +48,14 @@ enum token_type {
         TOKEN_RANGE,
 
         TOKEN_END,
+        TOKEN_ENDS,
         TOKEN_ERROR,
+        TOKEN_EOF,
 };
 
+/**
+ * @brief Describes a single token
+ */
 class Token {
 
 public:
@@ -72,8 +77,75 @@ public:
         bool isOperator() const { return weight() > 0; };
 };
 
+/**
+ * @brief Token iterator
+ * Implements token reading mechanism
+ */
+class token_iterator 
+{
+        bool empty;
+        bool getPrevious;
+protected:
+
+        Token until;
+        Token prev;
+        Token current;
+        
+        virtual Token getToken() = 0;
+        token_iterator(const Token &_until): empty(true), getPrevious(false), 
+                                                until(_until) {}
+
+public:
+        token_iterator& operator++(int);
+        token_iterator& operator--(int);
+
+        const Token& operator*();
+        
+        const Token* operator->() {
+                return &operator*();
+        }
+        
+        void readUntil(const Token &t) { until = t; }
+        bool eof() { return operator*() == until; }
+};
+
+/**
+ * Token iterator based on input bytestream
+ */
+class stream_token_iterator: public token_iterator
+{
+        std::istream &in;
+        Token getToken();
+
+public:
+        stream_token_iterator(std::istream &st, const Token &end = Token()): 
+                token_iterator(end), in(st) {}
+};
+
+/**
+ * Empty token iterator exception
+ */
+class EmptyTokenIteratorException {};
+
+/**
+ * Token list definition - based on std::list container
+ */
 typedef std::list<Token> token_list;
-typedef std::list<Token>::iterator token_iterator;
+
+/**
+ * Token iterator based on token list
+ */
+class list_token_iterator: public token_iterator
+{
+        const token_list &lst;
+        token_list::const_iterator it;
+
+        Token getToken();
+public:
+        list_token_iterator(const token_list &_lst, const Token &end = Token()): 
+                token_iterator(end), lst(_lst), it(_lst.begin()) {}
+};
+
 
 std::ostream& operator<<(std::ostream &in, Token &t);
 token_list *lex_parse(std::istream &input, const Token &until = Token());

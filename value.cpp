@@ -93,5 +93,154 @@ RBasic::Value& RBasic::Value::operator+(const RBasic::Value &val)
                 elems[i] += val[i % vsize];
         }
 
+        type = VAR_NUMBER;
+
         return *this;
+}
+
+RBasic::Value& RBasic::Value::operator-(const RBasic::Value &val)
+{
+        // expand size if necessary
+        expand(val.size());
+
+        unsigned int vsize = val.size();
+
+        for (unsigned int i = 0; i < size(); i++) {
+                elems[i] -= val[i % vsize];
+        }
+
+        type = VAR_NUMBER;
+        return *this;
+}
+
+RBasic::Value& RBasic::Value::operator*(const RBasic::Value &val)
+{
+        // expand size if necessary
+        expand(val.size());
+
+        unsigned int vsize = val.size();
+
+        for (unsigned int i = 0; i < size(); i++) {
+                elems[i] *= val[i % vsize];
+        }
+
+        type = VAR_NUMBER;
+        return *this;
+}
+
+RBasic::Value& RBasic::Value::operator/(const RBasic::Value &val)
+{
+        // expand size if necessary
+        expand(val.size());
+
+        unsigned int vsize = val.size();
+
+        for (unsigned int i = 0; i < size(); i++) {
+                elems[i] /= val[i % vsize];
+        }
+
+        type = VAR_NUMBER;
+        return *this;
+}
+
+RBasic::Value RBasic::Value::operator>(const RBasic::Value &val)
+{
+        // expand size if necessary
+        expand(val.size());
+
+        unsigned int vsize = val.size();
+
+        RBasic::Value ret(VAR_LOGICAL);
+        ret.expand(size());
+
+        for (unsigned int i = 0; i < size(); i++) {
+                ret[i] = (*this)[i] > val[i % vsize];
+        }
+
+        return ret;
+}
+
+RBasic::Value RBasic::Value::operator<(const RBasic::Value &val)
+{
+        // expand size if necessary
+        expand(val.size());
+
+        unsigned int vsize = val.size();
+
+        RBasic::Value ret(VAR_LOGICAL);
+        ret.expand(size());
+
+        for (unsigned int i = 0; i < size(); i++) {
+                ret[i] = (*this)[i] < val[i % vsize];
+        }
+
+        return ret;
+}
+
+RBasic::Value RBasic::Value::operator>=(const RBasic::Value &val)
+{
+        // expand size if necessary
+        expand(val.size());
+
+        unsigned int vsize = val.size();
+
+        RBasic::Value ret(VAR_LOGICAL);
+        ret.expand(size());
+
+        for (unsigned int i = 0; i < size(); i++) {
+                ret[i] = (*this)[i] >= val[i % vsize];
+        }
+
+        return ret;
+}
+
+RBasic::Value RBasic::Value::operator<=(const RBasic::Value &val)
+{
+        // expand size if necessary
+        expand(val.size());
+
+        unsigned int vsize = val.size();
+
+        RBasic::Value ret(VAR_LOGICAL);
+        ret.expand(size());
+
+        for (unsigned int i = 0; i < size(); i++) {
+                ret[i] = (*this)[i] <= val[i % vsize];
+        }
+
+        return ret;
+}
+
+RBasic::Value RBasic::Value::operator==(const RBasic::Value &val)
+{
+        // expand size if necessary
+        expand(val.size());
+
+        unsigned int vsize = val.size();
+
+        RBasic::Value ret(VAR_LOGICAL);
+        ret.expand(size());
+
+        for (unsigned int i = 0; i < size(); i++) {
+                ret[i] = (*this)[i] == val[i % vsize];
+        }
+
+        return ret;
+}
+
+RBasic::Value RBasic::Value::operator!=(const RBasic::Value &val)
+{
+        // expand size if necessary
+        expand(val.size());
+
+        unsigned int vsize = val.size();
+
+        RBasic::Value ret(VAR_LOGICAL);
+        ret.expand(size());
+
+        for (unsigned int i = 0; i < size(); i++) {
+                ret[i] = (*this)[i] != val[i % vsize];
+        }
+
+        return ret;
 }

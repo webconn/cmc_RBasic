@@ -2,33 +2,16 @@
 #include <cstring>
 #include <cctype>
 
-static Token *get_token(std::istream &in, const Token &until = Token());
 
-token_list *lex_parse(std::istream &input, const Token &until)
-{
-        std::list<Token> *lst = new std::list<Token>;
-        
-        Token *t;
 
-        while ((t = get_token(input, until)) != NULL) {
-                lst->push_back(*t);
-                delete t;
-        }
-
-        return lst;
-}
-
-static Token *get_token(std::istream &in, const Token &until)
+/**
+ * Get token from input stream
+ */
+Token stream_token_iterator::getToken()
 {
         token_type t;
-        Token *ret = NULL;
 
-        static bool end = false;
-
-        if (end == true) {
-                end = false;
-                return NULL;
-        }
+        Token ret;
 
         char s = in.get();
 
@@ -36,7 +19,11 @@ static Token *get_token(std::istream &in, const Token &until)
         while (!in.eof() && isblank(s)) s = in.get();
 
         // Symbols
-        if (in.eof() || s == ';' || s == '\n' || s == '\0' || s == '#') {
+        if (in.eof()) {
+                t = TOKEN_EOF;
+        } else if (s == ';') {
+                t = TOKEN_ENDS;
+        } else if (s == '\n' || s == '\0' || s == '#') {
                 t = TOKEN_END;
         } else if (s == ',') {
                 t = TOKEN_COMMA;
@@ -123,14 +110,14 @@ static Token *get_token(std::istream &in, const Token &until)
                         s = in.get();
                 }
 
-                ret = new Token(buf); // string
+                ret = Token(buf); // string
         } else if (isdigit(s)) { // number
                 in.unget();
                 
                 double buf;
                 in >> buf;
 
-                ret = new Token(buf);
+                ret = Token(buf);
         } else if (isalpha(s)) { // identifier or word
                 std::string buf;
                 
@@ -147,21 +134,77 @@ static Token *get_token(std::istream &in, const Token &until)
                 } else if (buf == "FALSE") {
                         t = TOKEN_FALSE;
                 } else {
-                        ret = new Token(buf, true); // identifier
+                        ret = Token(buf, true); // identifier
                 }
         } else {
                 t = TOKEN_ERROR;
         }
         
-        if (ret == NULL) {
-                ret = new Token(t);
-        }
-
-        if (until == *ret) {
-                end = true;
+        if (ret.type == TOKEN_END) {
+                ret.type = t;
         }
 
         return ret;
+}
+
+/**
+ * Get token from list
+ */
+Token list_token_iterator::getToken()
+{
+        return *(it++);
+}
+
+
+
+const Token& token_iterator::operator*()
+{
+        if (empty) {
+                empty = false;
+                getPrevious = true;
+                prev = getToken();
+                current = getToken();
+        }
+        
+        if (getPrevious) {
+                return prev;
+        } else {
+                return current;
+        }
+}
+
+/**
+ * Switch to next token in interator
+ */
+token_iterator& token_iterator::operator++(int dummy)
+{
+        if (empty) {
+                empty = false;
+                getPrevious = false;
+                prev = getToken();
+                current = getToken();
+        }
+
+        if (getPrevious) { // if last token was returned back, just shift
+                getPrevious = false;
+        } else { // get brand new token
+                prev = current;
+                current = getToken();
+        }
+
+        return *this;
+}
+
+token_iterator& token_iterator::operator--(int dummy)
+{
+        // if iterator is empty, nothing to shift back
+        if (empty)
+                throw EmptyTokenIteratorException();
+
+        // just require previous token
+        getPrevious = true;
+
+        return *this;
 }
 
 /**

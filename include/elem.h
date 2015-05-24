@@ -9,6 +9,9 @@
 
 #include "common.h"
 
+#include <string>
+#include <sstream>
+
 namespace RBasic {
 
         struct Elem {
@@ -30,6 +33,8 @@ namespace RBasic {
                 void set(double _num) { type = VAR_NUMBER; num = _num; }
                 void set(const std::string &_str) { type = VAR_STRING; str = _str; }
 
+                std::string toString() const;
+
                 operator bool() const { return (type == VAR_LOGICAL && bl); }
                 operator double() const { if (type == VAR_NUMBER) return num; else return 0.0; }
 
@@ -37,6 +42,13 @@ namespace RBasic {
                 Elem& operator-=(const Elem &el);
                 Elem& operator*=(const Elem &el);
                 Elem& operator/=(const Elem &el);
+
+                Elem operator>(const Elem &el) const;
+                Elem operator<(const Elem &el) const;
+                Elem operator>=(const Elem &el) const;
+                Elem operator<=(const Elem &el) const;
+                Elem operator==(const Elem &el) const;
+                Elem operator!=(const Elem &el) const;
         };
 
 };
