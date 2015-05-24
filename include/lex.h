@@ -48,6 +48,7 @@ enum token_type {
         TOKEN_RANGE,
 
         TOKEN_END,
+        TOKEN_EMPTY,
         TOKEN_ENDS,
         TOKEN_ERROR,
         TOKEN_EOF,
@@ -75,6 +76,14 @@ public:
 
         unsigned int weight() const;
         bool isOperator() const { return weight() > 0; };
+        bool isValue() const {
+                return (type == TOKEN_STRING) ||
+                       (type == TOKEN_NUMBER) ||
+                       (type == TOKEN_ID) ||
+                       (type == TOKEN_NULL) ||
+                       (type == TOKEN_TRUE) ||
+                       (type == TOKEN_FALSE);
+        }
 };
 
 /**
@@ -90,10 +99,11 @@ protected:
         Token until;
         Token prev;
         Token current;
+        Token _eof;
         
         virtual Token getToken() = 0;
-        token_iterator(const Token &_until): empty(true), getPrevious(false), 
-                                                until(_until) {}
+        token_iterator(const Token &e): empty(true), getPrevious(false), 
+                                                _eof(e) {}
 
 public:
         token_iterator& operator++(int);
@@ -105,8 +115,14 @@ public:
                 return &operator*();
         }
         
-        void readUntil(const Token &t) { until = t; }
-        bool eof() { return operator*() == until; }
+        Token readUntil(const Token &t) { Token ret = until; until = t; return ret; }
+        Token setEof(const Token &t) { Token ret = _eof; _eof = t; return ret; }
+
+        bool eof() { return !empty && operator*() == _eof; }
+        bool end() { return !empty && operator*() == until; }
+        
+        virtual void printStart() {}
+        virtual void printMore() {}
 };
 
 /**
@@ -116,10 +132,14 @@ class stream_token_iterator: public token_iterator
 {
         std::istream &in;
         Token getToken();
+        Token getTokenRaw();
 
 public:
-        stream_token_iterator(std::istream &st, const Token &end = Token()): 
+        stream_token_iterator(std::istream &st, const Token &end = Token(TOKEN_EOF)): 
                 token_iterator(end), in(st) {}
+        
+        void printStart() { if (in == std::cin) { std::cout << "> "; }}
+        void printMore() { if (in == std::cin) { std::cout << "+ "; }}
 };
 
 /**
@@ -142,12 +162,12 @@ class list_token_iterator: public token_iterator
 
         Token getToken();
 public:
-        list_token_iterator(const token_list &_lst, const Token &end = Token()): 
+        list_token_iterator(const token_list &_lst, const Token &end = Token(TOKEN_EOF)): 
                 token_iterator(end), lst(_lst), it(_lst.begin()) {}
 };
 
 
-std::ostream& operator<<(std::ostream &in, Token &t);
+std::ostream& operator<<(std::ostream &in, const Token &t);
 token_list *lex_parse(std::istream &input, const Token &until = Token());
 
 #endif

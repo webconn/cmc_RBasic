@@ -8,7 +8,7 @@ static Token until = Token();
  *
  * Take bytestream, create token list and parse it
  *
- * @param std::stream in Input bytestream
+ * @param token_iterator& in Input bytestream
  * @return bool True if stream parsed successfully, or false otherwise
  */
 bool syntax_parse(token_iterator &t)
@@ -26,12 +26,29 @@ bool syntax_parse(token_iterator &t)
  */
 bool Grammar::Program(token_iterator &t)
 {
+        t.printStart();
+
         while (!t.eof()) {
-                Grammar::Expression(t);
-                
-                if (t->type == TOKEN_END || t->type == TOKEN_ENDS)
+
+                try {
+                        Grammar::Expression(t);
+                } catch (RBasic::TypeException &e) {
+                        std::cerr << "2 Wrong types of operation" << std::endl;
+                } catch (RBasic::WrongArgumentsException &e) {
+                        std::cerr << "3 Wrong arguments for function" << std::endl;
+                } catch (Grammar::EmptyExpressionException &e) {
+
+                }
+
+                while (!t.eof() && (t->type == TOKEN_END || t->type == TOKEN_ENDS)) {
+                        if (t->type == TOKEN_END) {
+                                t.printStart();
+                        }
+
                         t++;
+                }
         }
+
         return true;
 }
 
@@ -52,6 +69,12 @@ RBasic::Value Grammar::Expression(token_iterator& t, const Token &until)
         // create list of assignment variables
         std::list<RBasic::Variable> vars;
 
+        // if last var in list will be without assignment,
+        // we'll need to push it into calculation stack via
+        // special Exp1 function call
+        bool addToStack = false;
+        RBasic::Value add_val;
+
         do {
                 // we need to have variable first and then assignment statement
                 RBasic::Variable var;
@@ -64,7 +87,9 @@ RBasic::Value Grammar::Expression(token_iterator& t, const Token &until)
                 if (t->type == TOKEN_ASSIGN) {
                         vars.push_back(var);
                 } else {
-                        t--;
+                        // it was a first part of expression
+                        addToStack = true;
+                        add_val = var.getValue();
                         break;
                 }
 
@@ -74,7 +99,13 @@ RBasic::Value Grammar::Expression(token_iterator& t, const Token &until)
 
         // here we have a list of variables to assign
         // let's parse an expression
-        RBasic::Value val = Grammar::Exp1(t, until);
+        RBasic::Value val;
+        try {
+                val = Grammar::Exp1(t, until, true, addToStack, add_val);
+        } catch (...) {
+                context = old_context;
+                throw;
+        }
 
         // restore context
         context = old_context;
@@ -136,18 +167,27 @@ RBasic::Variable Grammar::Variable(token_iterator& lst)
 /**
  * @brief Parse ariphmetic expression
  */
-RBasic::Value Grammar::Exp1(token_iterator &lst, const Token &until)
+RBasic::Value Grammar::Exp1(token_iterator &lst, const Token &until, bool fail, bool add_val, const RBasic::Value &val)
 {
         std::list<Token> op_stack;
         std::list<RBasic::Value> val_stack;
+        std::vector<bool> read_more_stack;
 
-        Token t = *lst;
+        if (add_val) {
+                val_stack.push_back(val);
+        }
 
-        while (!(t == until)) {
-                
+        while (1) {
+
+                if (lst->isValue()) {
+                        if (read_more_stack.size() > 0) {
+                                read_more_stack.pop_back();
+                        }
+                }
+
                 // check if token is a value
                 // first - check if it is a variable or function call
-                if (t.type == TOKEN_ID) {
+                if (lst->type == TOKEN_ID) {
                         RBasic::Value val;
 
                         // try to get variable
@@ -157,55 +197,91 @@ RBasic::Value Grammar::Exp1(token_iterator &lst, const Token &until)
                         } catch (IsFunctionCallException &e) {
                                 // this ID is a function call
                                 val = Grammar::FunctionCall(lst);
+                                lst--; // return carriage
                         } catch (...) {
                                 // unknown type
                                 // TODO: generate error
                         }
 
                         val_stack.push_back(val);
-                } else if (t.type == TOKEN_NUMBER) {
-                        val_stack.push_back(RBasic::Value(t.dbl));
-                } else if (t.type == TOKEN_STRING) {
-                        val_stack.push_back(RBasic::Value(t.str));
-                } else if (t.type == TOKEN_TRUE) {
+                } else if (lst->type == TOKEN_NUMBER) {
+                        val_stack.push_back(RBasic::Value(lst->dbl));
+                } else if (lst->type == TOKEN_STRING) {
+                        val_stack.push_back(RBasic::Value(lst->str));
+                } else if (lst->type == TOKEN_TRUE) {
                         val_stack.push_back(RBasic::Value(RBasic::Elem(true, true)));
-                } else if (t.type == TOKEN_FALSE) {
+                } else if (lst->type == TOKEN_FALSE) {
                         val_stack.push_back(RBasic::Value(RBasic::Elem(false, true)));
-                } else if (t.type == TOKEN_NULL) {
+                } else if (lst->type == TOKEN_NULL) {
                         val_stack.push_back(RBasic::Value());
                 }
 
                 // Check if current token is open bracket - need to get new expression
-                else if (t.type == TOKEN_OPBR) {
+                else if (lst->type == TOKEN_OPBR) {
                         lst++;
                         val_stack.push_back(Grammar::Expression(lst, Token(TOKEN_CLBR)));
                         // closing bracket is skipped already
                 }
 
                 // Check if current token is operator
-                else if (t.isOperator()) {
+                else if (lst->isOperator()) {
+                        read_more_stack.push_back(true);
+
                         if (op_stack.size() == 0) { // no operations in stack
                                 // just push current operation
-                                op_stack.push_back(t);
+                                op_stack.push_back(*lst);
                         } else {
                                 // check if current operation has less priority
-                                if (op_stack.back().weight() > t.weight()) {
+                                if (op_stack.back().weight() > lst->weight()) {
                                         // less priority - clean up the stack
                                         // TODO: error handling
                                         Grammar::Calculate(op_stack, val_stack);
                                 }
                                 // weight is OK, now push it in stack
-                                op_stack.push_back(t);
+                                op_stack.push_back(*lst);
+                        }
+                } 
+                
+                // Unexpected token
+                else { 
+                        if (lst->type == TOKEN_END) {
+                                if (read_more_stack.size() != 0) {
+                                        while (lst->type == TOKEN_END) {
+                                                lst.printMore();
+                                                lst++;
+                                        }
+                                        continue;
+                                }
+                        }
+
+                        if (*lst == until) {
+                                break;
+                        }
+
+                        if (lst.end() || lst->type == TOKEN_EOF)
+                                break;
+
+                        if (fail) { // if we need to fail
+                                throw UnexpectedTokenException();
+                        } else {
+                                break;
                         }
                 }
 
                 lst++;
-                t = *lst;
         }
 
         // clean up stack and so on
         // TODO: error handling
         Grammar::Calculate(op_stack, val_stack);
+
+        if (val_stack.size() == 0) { // empty stack means empty expression
+                throw EmptyExpressionException();
+        }
+
+        if (val_stack.size() != 1) { // stack must contain only 1 value
+                throw UnexpectedTokenException();
+        }
 
         // return top element of stack
         return val_stack.back();
@@ -245,13 +321,42 @@ RBasic::Value Grammar::FunctionCall(token_iterator &lst)
                 throw NotAFunctionCallException();
         }
 
+        Token id = *lst;
+
         lst++;
 
         // not an opening bracket - not a function call
         if (lst->type != TOKEN_OPBR) {
-
+                throw NotAFunctionCallException();
+                // we are unable to fix token iterator cause only 1 step 
+                // backward is available
         }
 
+        lst++; // skip bracket
 
-        return RBasic::Value();
+        Token oldUntil = lst.readUntil(Token(TOKEN_CLBR));
+        RBasic::ArgList args = Grammar::ArgList(lst);     
+        lst.readUntil(oldUntil);
+
+        // last bracket is skipped
+        lst++;
+        
+        return RBasic::FunctionCall(id.str, args);
+}
+
+RBasic::ArgList Grammar::ArgList(token_iterator &it)
+{
+        RBasic::ArgList lst;
+
+        while (!it.end()) {
+                lst.push_back(RBasic::Argument(Grammar::Expression(it, Token(TOKEN_COMMA))));
+
+                if (it->type == TOKEN_COMMA) {
+                        it++;
+                } else if (it->type == TOKEN_CLBR) {
+                        break;
+                }
+        }
+
+        return lst;
 }

@@ -7,7 +7,31 @@
 /**
  * Get token from input stream
  */
+
 Token stream_token_iterator::getToken()
+{
+        Token t = getTokenRaw();
+
+        if (t.type == TOKEN_END) {
+                // wait for end of expression
+                if (until.type != TOKEN_END) {
+                        while (t.type == TOKEN_END) {
+                                if (in == std::cin) {
+                                        std::cout << "+ ";
+                                }
+                                t = getTokenRaw();
+                        }
+
+                        if (t == until) {
+                                t.type = TOKEN_END;
+                        }
+                }
+        }
+
+        return t;
+}
+
+Token stream_token_iterator::getTokenRaw()
 {
         token_type t;
 
@@ -22,7 +46,7 @@ Token stream_token_iterator::getToken()
         if (in.eof()) {
                 t = TOKEN_EOF;
         } else if (s == ';') {
-                t = TOKEN_ENDS;
+                t = TOKEN_END;
         } else if (s == '\n' || s == '\0' || s == '#') {
                 t = TOKEN_END;
         } else if (s == ',') {
@@ -161,8 +185,7 @@ const Token& token_iterator::operator*()
 {
         if (empty) {
                 empty = false;
-                getPrevious = true;
-                prev = getToken();
+                getPrevious = false;
                 current = getToken();
         }
         
@@ -181,7 +204,6 @@ token_iterator& token_iterator::operator++(int dummy)
         if (empty) {
                 empty = false;
                 getPrevious = false;
-                prev = getToken();
                 current = getToken();
         }
 
@@ -237,9 +259,6 @@ unsigned int Token::weight() const
                         return 5;
                 case TOKEN_RANGE:
                         return 6;
-                case TOKEN_OPBR:
-                case TOKEN_CLBR:
-                        return 7;
                 default:
                         return 0;
         }
@@ -260,7 +279,7 @@ bool Token::operator==(const Token &t) const
         }
 }
 
-std::ostream& operator<<(std::ostream &in, Token &t)
+std::ostream& operator<<(std::ostream &in, const Token &t)
 {
         if (t.type == TOKEN_NUMBER) {
                 in << "number(" << t.dbl << ")";

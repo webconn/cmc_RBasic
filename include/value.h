@@ -36,6 +36,7 @@ namespace RBasic {
                 var_type getType() const { return type; }
                 std::string getTypeName() const;
 
+                // TODO: convert types
                 void push_back(const Elem &el) { elems.push_back(el); }
 
                 Value& operator+(const Value &val);

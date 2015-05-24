@@ -18,6 +18,7 @@
 #include "elem.h"
 #include "value.h"
 #include "variable.h"
+#include "functioncall.h"
 
 namespace RBasic {
 
