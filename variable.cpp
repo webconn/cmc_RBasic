@@ -5,7 +5,8 @@ using namespace RBasic;
 
 Variable::Variable(Value &val):
         origin(&val),
-        type(val.getType())
+        type(val.getType()),
+        original(true)
 {
         for (unsigned int i = 0; i < val.size(); i++) {
                 lvalues.push_back(&val[i]);
@@ -14,7 +15,8 @@ Variable::Variable(Value &val):
 
 Variable::Variable(Value &val, const Value &index):
         origin(&val),
-        type(val.getType())
+        type(val.getType()),
+        original(false)
 {
         if (index.getType() == VAR_LOGICAL) {
                 // Get existing elements
@@ -26,12 +28,14 @@ Variable::Variable(Value &val, const Value &index):
                         for (unsigned int i = val_size; i < in_size; i++) {
                                 val.push_back(Elem());
                         }
+                        
+                        val_size = in_size;
                 }
 
                 // Create lvalues table
-                for (unsigned int i = 0; i < std::max(in_size, val_size); i++) {
+                for (unsigned int i = 0; i < val_size; i++) {
                         if (index[i % in_size]) {
-                                lvalues.push_back(&val[i % in_size]);
+                                lvalues.push_back(&val[i]);
                         }
                 }
 
@@ -67,39 +71,33 @@ Value& Variable::operator=(const Value &val)
         // Append new elements
         if (val_size > lv_size) {
                 for (unsigned int i = lv_size; i < val_size; i++) {
-                        origin->push_back(val[i % val_size]);
+                        origin->push_back(val[i]);
                         lvalues.push_back(&((*origin)[i]));
                 }
         }
 
         // Remove unnecessary elems
         else if (val_size < lv_size) {
-                origin->trim(val_size);
-                lvalues.resize(val_size);
+                if (original) {
+                        origin->trim(val_size);
+                        lvalues.resize(val_size);
+                } else {
+                        for (unsigned int i = m; i < lv_size; i++) {
+                                *(lvalues[i]) = val[i % val_size];
+                        }
+                }
         }
 
         return *origin;
 }
 
-Value& Variable::getValue() 
+Value Variable::getValue() const
 {
-        // TODO: this is a shit
-        Value *val = new Value();
+        Value val;
 
         for (unsigned int i = 0; i < lvalues.size(); i++) {
-                val->push_back(*(lvalues[i]));
+                val.push_back(*(lvalues[i]));
         }
 
-        return *val;
-}
-
-const Value& Variable::getValue() const
-{
-        Value *val = new Value();
-
-        for (unsigned int i = 0; i < lvalues.size(); i++) {
-                val->push_back(*(lvalues[i]));
-        }
-
-        return *val;
+        return val;
 }

@@ -19,9 +19,10 @@ namespace RBasic {
                 Value *origin;
                 std::vector<Elem *> lvalues;
                 var_type type;
+                bool original;
 
         public:
-                Variable(): type(VAR_NULL) {}
+                Variable(): type(VAR_NULL), original(true) {}
                 Variable(Value &val);
                 Variable(Value &val, const Value &index);
 
@@ -30,8 +31,7 @@ namespace RBasic {
                 Value& operator=(const Value &v);
                 Value& operator=(const Elem &e);
 
-                Value& getValue();
-                const Value& getValue() const;
+                Value getValue() const;
 
                 operator Value() const { return getValue(); }
         };
