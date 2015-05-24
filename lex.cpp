@@ -73,6 +73,8 @@ Token stream_token_iterator::getTokenRaw()
                 t = TOKEN_PLUS;
         } else if (s == '-') {
                 t = TOKEN_MINUS;
+        } else if (s == '~') {
+                t = TOKEN_UNMINUS;
         } else if (s == '*') {
                 t = TOKEN_MUL;
         } else if (s == '/') {
@@ -253,6 +255,7 @@ unsigned int Token::weight() const
                         return 3;
                 case TOKEN_PLUS:
                 case TOKEN_MINUS:
+                case TOKEN_UNMINUS:
                         return 4;
                 case TOKEN_MUL:
                 case TOKEN_DIV:

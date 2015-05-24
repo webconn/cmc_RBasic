@@ -38,10 +38,15 @@ namespace RBasic {
                 operator bool() const { return (type == VAR_LOGICAL && bl); }
                 operator double() const { if (type == VAR_NUMBER) return num; else return 0.0; }
 
+                Elem& operator-();
+                Elem& operator!();
+
                 Elem& operator+=(const Elem &el);
                 Elem& operator-=(const Elem &el);
                 Elem& operator*=(const Elem &el);
                 Elem& operator/=(const Elem &el);
+                Elem& operator&=(const Elem &el);
+                Elem& operator|=(const Elem &el);
 
                 Elem operator>(const Elem &el) const;
                 Elem operator<(const Elem &el) const;

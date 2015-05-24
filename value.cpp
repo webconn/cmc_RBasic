@@ -113,6 +113,58 @@ RBasic::Value& RBasic::Value::operator-(const RBasic::Value &val)
         return *this;
 }
 
+RBasic::Value& RBasic::Value::operator&(const RBasic::Value &val)
+{
+        // expand size if necessary
+        expand(val.size());
+
+        unsigned int vsize = val.size();
+
+        for (unsigned int i = 0; i < size(); i++) {
+                elems[i] &= val[i % vsize];
+        }
+
+        type = VAR_LOGICAL;
+        return *this;
+}
+
+RBasic::Value& RBasic::Value::operator|(const RBasic::Value &val)
+{
+        // expand size if necessary
+        expand(val.size());
+
+        unsigned int vsize = val.size();
+
+        for (unsigned int i = 0; i < size(); i++) {
+                elems[i] |= val[i % vsize];
+        }
+
+        type = VAR_LOGICAL;
+        return *this;
+}
+
+RBasic::Value& RBasic::Value::operator-()
+{
+        type = VAR_NUMBER;
+
+        for (unsigned int i = 0; i < size(); i++) {
+                elems[i] = -elems[i];
+        }
+
+        return *this;
+}
+
+RBasic::Value& RBasic::Value::operator!()
+{
+        type = VAR_LOGICAL;
+
+        for (unsigned int i = 0; i < size(); i++) {
+                elems[i] = !elems[i];
+        }
+
+        return *this;
+}
+
 RBasic::Value& RBasic::Value::operator*(const RBasic::Value &val)
 {
         // expand size if necessary

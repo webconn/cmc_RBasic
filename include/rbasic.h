@@ -23,6 +23,7 @@
 namespace RBasic {
 
         Value Operation(const Token &t, const Value &exp1, const Value &exp2);
+        Value UnaryOperation(const Token &op, const Value &_e);
 
         Variable getVariable(const std::string &name);
         Variable getVariable(const std::string &name, const Value &index);

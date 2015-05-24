@@ -26,7 +26,15 @@ bool syntax_parse(token_iterator &t)
  */
 bool Grammar::Program(token_iterator &t)
 {
+        bool fatal = false;
+
         t.printStart();
+
+        stream_token_iterator *stre = dynamic_cast<stream_token_iterator *>(&t);
+
+        if (stre) { // this iterator is really stream based
+                fatal = !stre->std_in;
+        }
 
         while (!t.eof()) {
 
@@ -34,8 +42,14 @@ bool Grammar::Program(token_iterator &t)
                         Grammar::Expression(t);
                 } catch (RBasic::TypeException &e) {
                         std::cerr << "2 Wrong types of operation" << std::endl;
+                        if (fatal) {
+                                exit(2);
+                        }
                 } catch (RBasic::WrongArgumentsException &e) {
                         std::cerr << "3 Wrong arguments for function" << std::endl;
+                        if (fatal) {
+                                exit(3);
+                        }
                 } catch (Grammar::EmptyExpressionException &e) {
 
                 }
@@ -174,7 +188,8 @@ RBasic::Value Grammar::Exp1(token_iterator &lst, const Token &until, bool fail, 
 {
         std::list<Token> op_stack;
         std::list<RBasic::Value> val_stack;
-        std::vector<bool> read_more_stack;
+        int read_more = 0;
+        int unary_op = 0;
 
         if (add_val) {
                 val_stack.push_back(val);
@@ -183,8 +198,11 @@ RBasic::Value Grammar::Exp1(token_iterator &lst, const Token &until, bool fail, 
         while (1) {
 
                 if (lst->isValue()) {
-                        if (read_more_stack.size() > 0) {
-                                read_more_stack.pop_back();
+                        if (unary_op > 0) {
+                                unary_op--;
+                        } 
+                        if (read_more > 0) {
+                                read_more--;
                         }
                         assign = false;
                 }
@@ -217,7 +235,7 @@ RBasic::Value Grammar::Exp1(token_iterator &lst, const Token &until, bool fail, 
                 } else if (lst->type == TOKEN_FALSE) {
                         val_stack.push_back(RBasic::Value(RBasic::Elem(false, true)));
                 } else if (lst->type == TOKEN_NULL) {
-                        val_stack.push_back(RBasic::Value());
+                        val_stack.push_back(RBasic::Value(RBasic::Elem()));
                 }
 
                 // Check if current token is open bracket - need to get new expression
@@ -229,7 +247,11 @@ RBasic::Value Grammar::Exp1(token_iterator &lst, const Token &until, bool fail, 
 
                 // Check if current token is operator
                 else if (lst->isOperator()) {
-                        read_more_stack.push_back(true);
+                        if (lst->type == TOKEN_UNMINUS || lst->type == TOKEN_NOT) { // unary ops
+                                unary_op++;
+                        } else {
+                                read_more++;
+                        }
 
                         if (op_stack.size() == 0) { // no operations in stack
                                 // just push current operation
@@ -249,7 +271,7 @@ RBasic::Value Grammar::Exp1(token_iterator &lst, const Token &until, bool fail, 
                 // Unexpected token
                 else { 
                         if (lst->type == TOKEN_END) {
-                                if (read_more_stack.size() != 0 || assign) {
+                                if (read_more != 0 || unary_op != 0 || assign) {
                                         while (lst->type == TOKEN_END) {
                                                 lst.printMore();
                                                 lst++;
@@ -298,21 +320,33 @@ bool Grammar::Calculate(std::list<Token> &op_stack, std::list<RBasic::Value> &va
                 Token op = op_stack.back();
                 op_stack.pop_back();
 
-                if (val_stack.empty()) {
-                        throw NoOperandException(op);
+                if (op.type == TOKEN_NOT || op.type == TOKEN_UNMINUS) {
+                        if (val_stack.empty()) {
+                                throw NoOperandException(op);
+                        }
+
+                        RBasic::Value exp = val_stack.back();
+                        val_stack.pop_back();
+
+                        val_stack.push_back(RBasic::UnaryOperation(op, exp));
+                } else {
+                        if (val_stack.empty()) {
+                                throw NoOperandException(op);
+                        }
+
+                        RBasic::Value exp2 = val_stack.back();
+                        val_stack.pop_back();
+
+                        if (val_stack.empty()) {
+                                throw NoOperandException(op);
+                        }
+
+
+                        RBasic::Value exp1 = val_stack.back();
+                        val_stack.pop_back();
+
+                        val_stack.push_back(RBasic::Operation(op, exp1, exp2));
                 }
-
-                RBasic::Value exp2 = val_stack.back();
-                val_stack.pop_back();
-
-                if (val_stack.empty()) {
-                        throw NoOperandException(op);
-                }
-
-                RBasic::Value exp1 = val_stack.back();
-                val_stack.pop_back();
-
-                val_stack.push_back(RBasic::Operation(op, exp1, exp2));
         }
 
         return true;

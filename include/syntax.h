@@ -4,6 +4,7 @@
 #include <string>
 #include <istream>
 #include <list>
+#include <cstdlib>
 #include <vector>
 
 #include "lex.h"

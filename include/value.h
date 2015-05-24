@@ -46,6 +46,11 @@ namespace RBasic {
                 Value& operator-(const Value &val);
                 Value& operator*(const Value &val);
                 Value& operator/(const Value &val);
+                Value& operator-();
+
+                Value& operator|(const Value &val);
+                Value& operator&(const Value &val);
+                Value& operator!();
 
                 // TODO: make it const by creating copies
                 Value operator>(const Value &val);

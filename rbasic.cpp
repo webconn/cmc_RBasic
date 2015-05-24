@@ -71,6 +71,19 @@ std::ostream& operator<<(std::ostream &out, RBasic::Elem &val)
         return out;
 }
 
+RBasic::Value RBasic::UnaryOperation(const Token &op, const RBasic::Value &_e)
+{
+        RBasic::Value ret = _e;
+
+        if (op.type == TOKEN_UNMINUS) { // unary minus
+                return -ret;
+        } else if (op.type == TOKEN_NOT) { // not
+                return !ret;
+        }
+
+        return RBasic::Value();
+}
+
 RBasic::Value RBasic::Operation(const Token &op, const RBasic::Value &_e1, const RBasic::Value &e2)
 {
         RBasic::Value e1 = _e1;
@@ -89,6 +102,10 @@ RBasic::Value RBasic::Operation(const Token &op, const RBasic::Value &_e1, const
                 return e1 * e2;
         } else if (op.type == TOKEN_DIV) { // divide
                 return e1 / e2;
+        } else if (op.type == TOKEN_AND) { // binary AND
+                return e1 & e2;
+        } else if (op.type == TOKEN_OR) { // binary OR
+                return e1 | e2;
         } else if (op.type == TOKEN_L) { // less
                 return e1 < e2;
         } else if (op.type == TOKEN_G) { // greater

@@ -31,6 +31,7 @@ enum token_type {
         TOKEN_AND,
         TOKEN_OR,
         TOKEN_NOT,
+        TOKEN_UNMINUS, // ~
         
         TOKEN_G,
         TOKEN_L,
@@ -82,7 +83,9 @@ public:
                        (type == TOKEN_ID) ||
                        (type == TOKEN_NULL) ||
                        (type == TOKEN_TRUE) ||
-                       (type == TOKEN_FALSE);
+                       (type == TOKEN_FALSE) || 
+                       (type == TOKEN_OPBR) ||
+                       (type == TOKEN_OPBLK);
         }
 };
 
@@ -135,9 +138,10 @@ class stream_token_iterator: public token_iterator
         std::istream &in;
         Token getToken();
         Token getTokenRaw();
-        bool std_in;
 
 public:
+        bool std_in;
+
         stream_token_iterator(std::istream &st, bool std, const Token &end = Token(TOKEN_EOF)): 
                 token_iterator(end), in(st), std_in(std) {}
         
