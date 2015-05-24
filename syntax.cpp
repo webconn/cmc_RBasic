@@ -75,6 +75,8 @@ RBasic::Value Grammar::Expression(token_iterator& t, const Token &until)
         bool addToStack = false;
         RBasic::Value add_val;
 
+        bool assign = false;
+
         do {
                 // we need to have variable first and then assignment statement
                 RBasic::Variable var;
@@ -86,6 +88,7 @@ RBasic::Value Grammar::Expression(token_iterator& t, const Token &until)
 
                 if (t->type == TOKEN_ASSIGN) {
                         vars.push_back(var);
+                        assign = true;
                 } else {
                         // it was a first part of expression
                         addToStack = true;
@@ -101,7 +104,7 @@ RBasic::Value Grammar::Expression(token_iterator& t, const Token &until)
         // let's parse an expression
         RBasic::Value val;
         try {
-                val = Grammar::Exp1(t, until, true, addToStack, add_val);
+                val = Grammar::Exp1(t, until, true, addToStack, add_val, assign);
         } catch (...) {
                 context = old_context;
                 throw;
@@ -167,7 +170,7 @@ RBasic::Variable Grammar::Variable(token_iterator& lst)
 /**
  * @brief Parse ariphmetic expression
  */
-RBasic::Value Grammar::Exp1(token_iterator &lst, const Token &until, bool fail, bool add_val, const RBasic::Value &val)
+RBasic::Value Grammar::Exp1(token_iterator &lst, const Token &until, bool fail, bool add_val, const RBasic::Value &val, bool assign)
 {
         std::list<Token> op_stack;
         std::list<RBasic::Value> val_stack;
@@ -183,6 +186,7 @@ RBasic::Value Grammar::Exp1(token_iterator &lst, const Token &until, bool fail, 
                         if (read_more_stack.size() > 0) {
                                 read_more_stack.pop_back();
                         }
+                        assign = false;
                 }
 
                 // check if token is a value
@@ -245,7 +249,7 @@ RBasic::Value Grammar::Exp1(token_iterator &lst, const Token &until, bool fail, 
                 // Unexpected token
                 else { 
                         if (lst->type == TOKEN_END) {
-                                if (read_more_stack.size() != 0) {
+                                if (read_more_stack.size() != 0 || assign) {
                                         while (lst->type == TOKEN_END) {
                                                 lst.printMore();
                                                 lst++;

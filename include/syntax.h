@@ -15,7 +15,8 @@ namespace Grammar {
         RBasic::Value Expression(token_iterator &lst, const Token &until = Token());
         RBasic::Value Exp1(token_iterator &lst, const Token &until = Token(), 
                         bool fail = false, bool add = false, 
-                        const RBasic::Value &add_val = RBasic::Value());
+                        const RBasic::Value &add_val = RBasic::Value(),
+                        bool assign = false);
         RBasic::Value FunctionCall(token_iterator &lst);
         RBasic::Variable Variable(token_iterator &lst);
         RBasic::ArgList ArgList(token_iterator &it);
