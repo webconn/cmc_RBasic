@@ -14,6 +14,7 @@ namespace Grammar {
 
         bool Program(token_iterator &lst);
         RBasic::Value Expression(token_iterator &lst, const Token &until = Token());
+        RBasic::Value Block(token_iterator &lst);
         RBasic::Value Exp1(token_iterator &lst, const Token &until = Token(), 
                         bool fail = false, bool add = false, 
                         const RBasic::Value &add_val = RBasic::Value(),

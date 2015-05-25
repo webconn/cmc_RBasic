@@ -67,6 +67,32 @@ bool Grammar::Program(token_iterator &t)
 }
 
 /**
+ * @brief Parse block
+ * @param token_iterator t Pointer to current token in list
+ * @return RBasic::Value Last value in block
+ */
+RBasic::Value Grammar::Block(token_iterator &t)
+{
+        RBasic::Value ret = RBasic::Value(RBasic::Elem()); // default value for block is NULL
+
+        Token lastUntil = t.readUntil(Token(TOKEN_CLBLK));
+
+        while (!t.end()) {
+                ret = Grammar::Expression(t);
+
+                while (!t.eof() && (t->type == TOKEN_END || t->type == TOKEN_ENDS)) {
+                        t++;
+                }
+        }
+
+        t.readUntil(lastUntil);
+
+        t++;
+        
+        return ret;
+}
+
+/**
  * @brief Parse expression from grammar
  * @param token_iterator t Pointer to current token in list
  * @return RBasic::Value Value of expression
@@ -243,6 +269,12 @@ RBasic::Value Grammar::Exp1(token_iterator &lst, const Token &until, bool fail, 
                         lst++;
                         val_stack.push_back(Grammar::Expression(lst, Token(TOKEN_CLBR)));
                         // closing bracket is skipped already
+                }
+
+                // Check if current token is open block - need to read whole block
+                else if (lst->type == TOKEN_OPBLK) {
+                        lst++;
+                        val_stack.push_back(Grammar::Block(lst));
                 }
 
                 // Check if current token is operator
